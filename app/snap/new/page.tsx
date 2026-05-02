@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { addSnap } from "../../../lib/firestore";
 import { getBooks } from "../../../lib/firestore";
 import type { SnapCategory, TsumugiBook } from "../../../types/tsumugi";
@@ -70,21 +69,15 @@ export default function NewSnapPage() {
   }
 
   async function handleSave() {
-    if (!imageFile) return;
     setSaving(true);
     try {
-      const storage = getStorage();
-      const storageRef = ref(storage, `snaps/${Date.now()}_${imageFile.name}`);
-      await uploadBytes(storageRef, imageFile);
-      const image_url = await getDownloadURL(storageRef);
-
       await addSnap({
         book_id: bookId,
         extracted_text: ocrText,
         memo,
         category,
         source_page: sourcePage,
-        image_url,
+        image_url: "",
       });
 
       router.push("/snaps");
