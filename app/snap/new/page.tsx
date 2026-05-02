@@ -22,6 +22,7 @@ export default function NewSnapPage() {
   const [category, setCategory] = useState<SnapCategory>("言葉");
   const [ocrText, setOcrText] = useState("");
   const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrError, setOcrError] = useState<string | null>(null);
   const [memo, setMemo] = useState("");
   const [sourcePage, setSourcePage] = useState("");
   const [bookId, setBookId] = useState("");
@@ -42,16 +43,25 @@ export default function NewSnapPage() {
 
   async function runOcr() {
     if (!imageFile) return;
+    setOcrError(null);
     setOcrLoading(true);
+    setStep("review");
     try {
       const form = new FormData();
       form.append("image", imageFile);
       const res = await fetch("/api/ocr", { method: "POST", body: form });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? `サーバーエラー (${res.status})`);
+      }
+      if (data.error) {
+        throw new Error(data.error);
+      }
       setOcrText(data.text ?? "");
+    } catch (err) {
+      setOcrError(err instanceof Error ? err.message : "OCRに失敗しました");
     } finally {
       setOcrLoading(false);
-      setStep("review");
     }
   }
 
@@ -168,6 +178,25 @@ export default function NewSnapPage() {
           )}
           {ocrLoading ? (
             <p className="text-center text-gray-400 py-6">テキストを認識中…</p>
+          ) : ocrError ? (
+            <div className="flex flex-col gap-3">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+                <p className="font-semibold mb-1">OCRエラー</p>
+                <p>{ocrError}</p>
+              </div>
+              <button
+                onClick={runOcr}
+                className="w-full py-3 rounded-xl border border-gray-300 text-sm font-semibold hover:bg-gray-50"
+              >
+                再試行
+              </button>
+              <button
+                onClick={() => { setOcrError(null); setStep("meta"); }}
+                className="w-full py-3 rounded-xl bg-gray-900 text-white text-sm font-semibold"
+              >
+                スキップして続ける
+              </button>
+            </div>
           ) : (
             <>
               <div>
