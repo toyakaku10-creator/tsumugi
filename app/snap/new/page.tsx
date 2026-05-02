@@ -13,7 +13,8 @@ const CATEGORIES: SnapCategory[] = ["言葉", "ワード", "書籍名", "映画�
 
 export default function NewSnapPage() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<Step>("capture");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -114,16 +115,29 @@ export default function NewSnapPage() {
         <div className="flex flex-col gap-4">
           <p className="text-gray-600 text-sm">写真を撮影またはライブラリから選択してください。</p>
           <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center justify-center gap-2 w-full py-16 rounded-2xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors text-lg"
+            onClick={() => cameraInputRef.current?.click()}
+            className="flex items-center justify-center gap-2 w-full py-12 rounded-2xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors text-lg"
           >
-            📷 カメラで撮影 / 写真を選択
+            📷 カメラで撮影
+          </button>
+          <button
+            onClick={() => libraryInputRef.current?.click()}
+            className="flex items-center justify-center gap-2 w-full py-12 rounded-2xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors text-lg"
+          >
+            🖼️ 写真を選ぶ
           </button>
           <input
-            ref={fileInputRef}
+            ref={cameraInputRef}
             type="file"
             accept="image/*"
             capture="environment"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <input
+            ref={libraryInputRef}
+            type="file"
+            accept="image/*"
             className="hidden"
             onChange={handleFileChange}
           />
